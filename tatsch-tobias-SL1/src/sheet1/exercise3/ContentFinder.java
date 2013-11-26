@@ -43,6 +43,7 @@ public class ContentFinder {
         System.out.println(bitstring);
 
         // Part 3.4
+        //test: "1111000011111000001000001111110011" startIndex: 13; endIndex: 24
         int[] result = contentFinder.identifyMainText(bitstring);
 
         if (result == null) {
@@ -117,10 +118,39 @@ public class ContentFinder {
     }
 
     // Part 3.4 in O(N^3) (see exercise)
-    public int[] identifyMainText(String bitstring) {
+    public int[] identifyMainText(String bits) {
+        char tag = "1".charAt(0);
+        char token = "0".charAt(0);
+        int startIndex = 0;
+        int endIndex = 0;
+        int tolarance = 5;
+        int max = 0;
+        for (int L = 0; L < bits.length(); L++) { //L
+            char bit = bits.charAt(L);
+            if (bit == token) {
+                for (int U = L + 1; U < bits.length(); U++) { //U
+                    int countTokens = 0;
+                    char nextBit = bits.charAt(U);
+                    if (nextBit == token) {
+                        int I = 0;
+                        for (I = L + 1; I < U; I++) {
+                            char nextNextBit = bits.charAt(I);
+                            if (nextNextBit == token) {
+                                countTokens++;
+                            }
+                        }
+                        if (countTokens > max) {
+                            max = countTokens;
+                            startIndex = I;
+                        }
+                    }
+                }
+
+            }
+        }
 
 
-        return null;
+        return new int[]{startIndex, startIndex + max, max};
     }
 
     public String removeScriptTags(String text) {
