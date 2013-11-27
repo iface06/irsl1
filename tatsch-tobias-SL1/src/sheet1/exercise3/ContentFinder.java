@@ -98,8 +98,9 @@ public class ContentFinder {
         String cleanText = removeScriptTags(text);
         cleanText = removeTabAndLineBreaks(cleanText);
         cleanText = removeHtmlTags(cleanText);
-        cleanText = removeMulipleWhitespaces(cleanText);
         cleanText = removePoints(cleanText);
+        cleanText = removeMulipleWhitespaces(cleanText);
+        cleanText = cleanText.trim();
         return cleanText;
     }
 
@@ -109,8 +110,11 @@ public class ContentFinder {
         String bits = new String();
         for (int i = 0; i < content.length; i++) {
             String bitified = content[i];
-            bitified = replaceByPattern(bitified, "\\#", "1");
-            bitified = replaceByPattern(bitified, "[^1]", "0");
+            if (bitified.equals(TAG_INDICATOR)) {
+                bitified = "1";
+            } else {
+                bitified = "0";
+            }
             bits += bitified;
         }
 
@@ -119,29 +123,30 @@ public class ContentFinder {
 
     // Part 3.4 in O(N^3) (see exercise)
     public int[] identifyMainText(String bits) {
-        char tag = "1".charAt(0);
         char token = "0".charAt(0);
         int startIndex = 0;
         int endIndex = 0;
-        int tolarance = 5;
-        int max = 0;
+        int maxCosts = 0;
         for (int L = 0; L < bits.length(); L++) { //L
             char bit = bits.charAt(L);
             if (bit == token) {
-                for (int U = L + 1; U < bits.length(); U++) { //U
-                    int countTokens = 0;
+                for (int U = L; U < bits.length(); U++) { //U
+                    int countedTokens = 0;
                     char nextBit = bits.charAt(U);
                     if (nextBit == token) {
                         int I = 0;
-                        for (I = L + 1; I < U; I++) {
+                        for (I = L; I < U; I++) { //I
                             char nextNextBit = bits.charAt(I);
                             if (nextNextBit == token) {
-                                countTokens++;
+                                countedTokens++;
+                            } else {
+                                break;
                             }
                         }
-                        if (countTokens > max) {
-                            max = countTokens;
-                            startIndex = I;
+                        if (countedTokens > maxCosts) {
+                            maxCosts = countedTokens;
+                            startIndex = L;
+                            endIndex = I - 1;
                         }
                     }
                 }
@@ -150,7 +155,7 @@ public class ContentFinder {
         }
 
 
-        return new int[]{startIndex, startIndex + max, max};
+        return new int[]{startIndex, endIndex, maxCosts};
     }
 
     public String removeScriptTags(String text) {
@@ -159,15 +164,15 @@ public class ContentFinder {
     }
 
     private String removeTabAndLineBreaks(String text) {
-        return replaceByPattern(text, "\\n|\\t", " ");
+        return replaceByPattern(text, "\\n|\\t|\\n\\r", " ");
     }
 
     private String removeMulipleWhitespaces(String text) {
-        return replaceByPattern(text, " {2,}", " ");
+        return replaceByPattern(text, "\\s{2,}", " ");
     }
 
     private String removeHtmlTags(String text) {
-        return replaceByPattern(text, "<.*?>", "#");
+        return replaceByPattern(text, "<.*?>", " # ");
     }
 
     private String removePoints(String cleanText) {
