@@ -43,7 +43,6 @@ public class ContentFinder {
         System.out.println(bitstring);
 
         // Part 3.4
-        //test: "1111000011111000001000001111110011" startIndex: 13; endIndex: 24
         int[] result = contentFinder.identifyMainText(bitstring);
 
         if (result == null) {
@@ -124,14 +123,18 @@ public class ContentFinder {
     // Part 3.4 in O(N^3) (see exercise)
     public int[] identifyMainText(String bits) {
         char token = "0".charAt(0);
+        char tag = "1".charAt(0);
         int startIndex = 0;
         int endIndex = 0;
         int maxCosts = 0;
+        double ratioBetweenTagsAndTokens = calculateRatioBetweenTagsAndTokens(bits);
+        
         for (int L = 0; L < bits.length(); L++) { //L
             char bit = bits.charAt(L);
             if (bit == token) {
                 for (int U = L; U < bits.length(); U++) { //U
                     int countedTokens = 0;
+                    int countedTags = 1;
                     char nextBit = bits.charAt(U);
                     if (nextBit == token) {
                         int I = 0;
@@ -139,7 +142,10 @@ public class ContentFinder {
                             char nextNextBit = bits.charAt(I);
                             if (nextNextBit == token) {
                                 countedTokens++;
-                            } else {
+                            } else if(nextNextBit == tag && ((double)countedTags / countedTokens) < ratioBetweenTagsAndTokens){
+                                countedTokens++;
+                                countedTags++;
+                            }else {
                                 break;
                             }
                         }
@@ -153,8 +159,6 @@ public class ContentFinder {
 
             }
         }
-
-
         return new int[]{startIndex, endIndex, maxCosts};
     }
 
@@ -183,5 +187,21 @@ public class ContentFinder {
         Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(text);
         return m.replaceAll(replacement);
+    }
+
+    private double calculateRatioBetweenTagsAndTokens(String bits) {
+        int numberOfTag = calculate(bits, "1");
+        return (double) ((double)numberOfTag / bits.length()) / 3;
+    }
+
+    private int calculate(String bits, String expectedBit) {
+        int counter = 0;
+        for (int i = 0; i < bits.length(); i++) {
+            char bit = bits.charAt(i);
+            if(bit == expectedBit.charAt(0)){
+                counter++;
+            }
+        }
+        return counter;
     }
 }

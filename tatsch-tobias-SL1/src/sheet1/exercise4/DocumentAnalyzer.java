@@ -68,13 +68,15 @@ public class DocumentAnalyzer {
         List<String> tokens = Arrays.asList(documentText.split("\\W{1,}"));
         Map<String, Integer> countedTokens = new HashMap<String, Integer>();
         for (String token : tokens) {
-            if(countedTokens.containsKey(token)){
-                Integer numberOfToken = countedTokens.get(token) + 1;
-                countedTokens.put(token, numberOfToken);
+            String lowerCasedToken = token.toLowerCase();
+            if(countedTokens.containsKey(lowerCasedToken)){
+                Integer numberOfToken = countedTokens.get(lowerCasedToken) + 1;
+                countedTokens.put(lowerCasedToken, numberOfToken);
             } else {
-                countedTokens.put(token, 1);
+                countedTokens.put(lowerCasedToken, 1);
             }
         }
+        System.out.println(countedTokens);
         return countedTokens;
     }
 
